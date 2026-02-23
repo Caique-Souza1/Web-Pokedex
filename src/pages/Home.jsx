@@ -51,7 +51,6 @@ export default function Home() {
   return (
     <div className="container">
       <div className="controls">
-        {/* Seletor de Geração */}
         <select 
           className="gen-selector"
           value={currentGen.name} 

@@ -1,36 +1,31 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios"; 
 import api from "../services/api"; 
 
 export default function PokemonDetails() {
   const { name } = useParams();
   const [pokemon, setPokemon] = useState(null);
-  const [tcgCard, setTcgCard] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchData() {
       try {
         const response = await api.get(`/pokemon/${name}`);
-        const pokeData = response.data;
-        setPokemon(pokeData);
-
-        const tcgResponse = await axios.get(
-          `https://api.pokemontcg.io/v2/cards?q=nationalPokedexNumbers:${pokeData.id}&pageSize=1`
-        );
-        
-        if (tcgResponse.data.data && tcgResponse.data.data.length > 0) {
-          setTcgCard(tcgResponse.data.data[0]);
+        if (isMounted) {
+          setPokemon(response.data);
         }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
 
     fetchData();
+
+    return () => { isMounted = false; };
   }, [name]);
 
   if (loading) return <div className="container"><p className="loading-text">Carregando detalhes...</p></div>;
@@ -43,36 +38,23 @@ export default function PokemonDetails() {
       </Link>
 
       <div className="details-container">
-        <div className="details-card">
+        <div className="details-card" style={{ maxWidth: '600px', width: '100%' }}>
           <h2>{pokemon.name}</h2>
           <img 
             src={pokemon.sprites.other["official-artwork"].front_default} 
             alt={pokemon.name}
-            style={{ width: '200px' }}
+            style={{ width: '250px', display: 'block', margin: '0 auto' }}
           />
-          <div style={{ marginTop: '20px', textAlign: 'left' }}>
-            <p><strong>Altura:</strong> {pokemon.height / 10} m</p>
-            <p><strong>Peso:</strong> {pokemon.weight / 10} kg</p>
-            <p><strong>Tipos:</strong> {pokemon.types.map(t => t.type.name).join(', ')}</p>
-          </div>
-        </div>
-
-        <div className="tcg-card-wrapper">
-          <h3>Carta TCG Oficial</h3>
-          {tcgCard ? (
+          <div style={{ marginTop: '30px', textAlign: 'left', display: 'flex', justifyContent: 'space-around' }}>
             <div>
-              <img 
-                src={tcgCard.images.large} 
-                alt={`${pokemon.name} TCG Card`} 
-                className="tcg-image" 
-              />
-              <p style={{ fontSize: '0.9rem', color: '#888', marginTop: '10px' }}>
-                Set: {tcgCard.set.name} | Artista: {tcgCard.artist}
-              </p>
+              <p><strong>Altura:</strong> {pokemon.height / 10} m</p>
+              <p><strong>Peso:</strong> {pokemon.weight / 10} kg</p>
             </div>
-          ) : (
-            <p>Carta TCG não encontrada.</p>
-          )}
+            <div>
+              <p><strong>Tipos:</strong> {pokemon.types.map(t => t.type.name).join(', ')}</p>
+              <p><strong>Habilidade:</strong> {pokemon.abilities[0].ability.name}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

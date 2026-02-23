@@ -3,12 +3,11 @@ import { createContext, useState, useEffect } from "react";
 export const FavoritesContext = createContext();
 
 export function FavoritesProvider({ children }) {
-  const [favorites, setFavorites] = useState([]);
-
-  useEffect(() => {
+  const [favorites, setFavorites] = useState(() => {
     const stored = localStorage.getItem("favorites");
-    if (stored) setFavorites(JSON.parse(stored));
-  }, []);
+
+    return stored ? JSON.parse(stored) : [];
+  });
 
   useEffect(() => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
