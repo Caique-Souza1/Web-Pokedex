@@ -1,4 +1,4 @@
-# 🔴⚪ Web Pokédex
+# Web Pokédex
 
 Projeto desenvolvido em React com o objetivo de consumir a API pública PokeAPI e exibir informações sobre Pokémon da 1ª até a 5ª geração.
 
